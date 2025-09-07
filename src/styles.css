@@ -1,0 +1,186 @@
+/* ===================================== */
+/* Global and Base Styles */
+/* ===================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Courier New", monospace;
+}
+
+body {
+    background: #0d1117;
+    color: #00ff99;
+    min-height: 100vh;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ===================================== */
+/* New Navbar Styles */
+/* ===================================== */
+.navbar {
+    background: #0b0f14;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 25px;
+    box-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+    position: sticky;
+    top: 20px;
+    z-index: 1000;
+}
+
+.navbar-title {
+    color: #00ff99;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+    margin: 0;
+    text-shadow: 0 0 5px #00ff99;
+}
+
+.navbar-back-button {
+    background: none;
+    border: 2px solid #00ff99;
+    color: #00ff99;
+    font-size: 1.5rem;
+    padding: 5px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px #00ff99;
+}
+
+.navbar-back-button:hover {
+    background: #00ff99;
+    color: #0d1117;
+    box-shadow: 0 0 10px #00ff99;
+}
+
+/* ===================================== */
+/* Dashboard Styles */
+/* ===================================== */
+.dashboard-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.dashboard-container h1 {
+    font-size: 3rem;
+    color: #00ff99;
+    text-shadow: 0 0 15px #00ff99;
+    margin-bottom: 20px;
+}
+
+.dashboard-container h2 {
+    font-size: 2rem;
+    color: #00ffaa;
+    text-shadow: 0 0 10px #00ff99;
+    margin-bottom: 40px;
+}
+
+.dashboard-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+}
+
+.dashboard-button {
+    background: #0b0f14;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00ff99;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.dashboard-button:hover {
+    background: #00ff99;
+    color: #0d1117;
+    box-shadow: 0 0 15px #00ff99;
+    transform: translateY(-5px);
+}
+
+.dashboard-button svg {
+    fill: currentColor; /* Makes SVG color match text color */
+    width: 40px;
+    height: 40px;
+}
+
+.coming-soon-container {
+    text-align: center;
+    padding: 50px;
+}
+
+.coming-soon-container h2 {
+    font-size: 3rem;
+    color: #00ff99;
+    text-shadow: 0 0 15px #00ff99;
+}
+
+
+/* ================================== */
+/* MOBILE RESPONSIVENESS */
+/* ================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
+    .navbar {
+        top: 0;
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
+        margin-bottom: 15px;
+    }
+
+    .navbar-title {
+        font-size: 1.2rem;
+    }
+
+    .navbar-back-button {
+        font-size: 1.2rem;
+        padding: 2px 10px;
+    }
+
+    .dashboard-container h1 {
+        font-size: 2.5rem;
+    }
+
+    .dashboard-container h2 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-buttons {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .dashboard-button {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.2rem;
+    }
+}

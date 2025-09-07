@@ -1,0 +1,356 @@
+/* ===================================== */
+/* WingoTrader Styles */
+/* ===================================== */
+
+/* Headings */
+h2 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #00ff99;
+    text-shadow: 0 0 15px #00ff99;
+    text-align: center;
+}
+
+/* INPUT SECTION */
+#input-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    justify-content: center;
+    width: 100%;
+}
+
+#input-group input {
+    margin-top: 5%;
+    padding: 24px;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    outline: none;
+    background: #0b0f14;
+    color: #00ff99;
+    font-size: 2.5rem;
+    width: 60%;
+    transition: all 0.3s ease;
+}
+
+#input-group input:focus {
+    box-shadow: 0 0 12px #00ff99;
+    border-color: #00ffcc;
+}
+
+.add-btn {
+    background: #00ff99;
+    margin-top: 5%;
+    color: #0d1117;
+    border: none;
+    border-radius: 10px;
+    padding: 18px 32px;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.add-btn:hover {
+    background: #0d1117;
+    color: #00ff99;
+    border: 2px solid #00ff99;
+    box-shadow: 0 0 15px #00ff99;
+}
+
+/* CONTROLS */
+#controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+    width: 100%;
+}
+
+.predict-btn {
+    position: fixed;
+    bottom: 100px;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    padding: 40px 20px;
+    font-size: 2.5rem;
+    color: #00ff99;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    background-color: #00ff995c;
+}
+
+.predict-btn:hover {
+    background: #00ff99;
+    color: #0d1117;
+    box-shadow: 0 0 18px #00ff99;
+}
+
+#result {
+    flex-basis: 100%;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 2rem;
+    color: #00ffaa;
+    text-shadow: 0 0 8px #00ff99;
+}
+
+/* PREDICTION BOX */
+#prediction-box-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.prediction-container {
+    background: rgba(10, 15, 20, 0.95);
+    border: 2px solid #00ff99;
+    border-radius: 14px;
+    padding: 40px;
+    margin-bottom: 25px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 255, 153, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+#prediction-box .result-line {
+    margin: 10px 0;
+    font-size: 2.5rem;
+}
+
+.copy-btn-container {
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.copy-btn {
+    background-color: #0b0f14;
+    width: 250px;
+    height: 60px;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 2rem;
+    overflow: hidden;
+    transition-duration: 700ms;
+    color: #00ff99;
+    position: relative;
+}
+
+.copy-btn span:first-child {
+    color: #00ff99;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.copy-btn span:last-child {
+    position: absolute;
+    color: #00ff99;
+    opacity: 0;
+    transform: translateY(100%) translateX(-50%);
+    top: 50%;
+    left: 50%;
+}
+
+.copy-btn:focus {
+    background-color: #00ff99;
+    color: #0d1117;
+    transition-duration: 500ms;
+}
+
+.copy-btn:focus span:first-child {
+    color: #0d1117;
+    transform: translateX(-50%) translateY(-150%);
+    opacity: 0;
+    transition-duration: 500ms;
+}
+
+.copy-btn:focus span:last-child {
+    color: #0d1117;
+    transform: translateX(-50%) translateY(-50%);
+    opacity: 1;
+    transition-delay: 300ms;
+    transition-duration: 500ms;
+}
+
+/* TABLE */
+.table-container {
+    width: 100%;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: unset;
+    font-size: 1rem;
+}
+
+thead {
+    background: #0b0f14;
+    color: #00ff99;
+}
+
+thead th {
+    padding: 12px;
+    font-size: 2rem;
+    border-bottom: 2px solid #00ff99;
+}
+
+tbody td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #003322;
+    font-size: 4rem;
+    color: #e5ffe5;
+}
+
+tbody td:first-child {
+    font-weight: bold;
+    color: #00ffaa;
+}
+
+/* Updated color classes */
+.red {
+    color: red !important;
+}
+
+.green {
+    color: green !important;
+}
+
+.purple {
+    color: purple !important;
+}
+
+/* New class for a specific element */
+td.green-text {
+    color: green !important;
+}
+
+td.red-text {
+    color: red !important;
+}
+
+td.purple-text {
+    color: purple !important;
+}
+
+/* ================================== */
+/* MOBILE RESPONSIVENESS */
+/* ================================== */
+@media (max-width: 768px) {
+    h2 {
+        font-size: 2rem;
+    }
+
+    #input-group {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #input-group input {
+        width: 100%;
+        font-size: 1.5rem;
+        padding: 15px;
+    }
+
+    .add-btn {
+        width: 100%;
+        padding: 15px 25px;
+        font-size: 1.5rem;
+    }
+    
+    .predict-btn {
+        position: static;
+        margin-top: 20px;
+        width: 100%;
+        padding: 20px 15px;
+        font-size: 1.5rem;
+    }
+
+    #result {
+        font-size: 1.2rem;
+        margin-top: 10px;
+    }
+
+    .prediction-container {
+        padding: 20px;
+    }
+
+    #prediction-box .result-line {
+        font-size: 1.2rem;
+        margin: 5px 0;
+    }
+
+    .copy-btn {
+        width: 180px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+
+    .copy-btn:focus {
+        width: 180px;
+        height: 50px;
+    }
+
+    .copy-btn:focus:end {
+        width: 180px;
+        height: 50px;
+    }
+
+    /* Key changes for non-scrolling table */
+    thead {
+        display: none;
+    }
+    
+    table, tbody, tr, td {
+        display: block;
+        width: 100%;
+        text-align: right;
+    }
+
+    tr {
+        margin-bottom: 15px;
+        border: 2px solid #00ff99;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    tbody td {
+        border-bottom: 1px solid #003322;
+        font-size: 2.5rem;
+        position: relative;
+    }
+
+    tbody td:last-child {
+        border-bottom: none;
+    }
+
+    /* Add "fake" headers using pseudo-elements */
+    tbody td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        font-weight: bold;
+        color: #00ffaa;
+        font-size: 1.5rem;
+    }
+}

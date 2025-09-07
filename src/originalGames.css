@@ -1,0 +1,236 @@
+/* ===================================== */
+/* General Layout and Responsiveness */
+/* ===================================== */
+body {
+    background: #0d1117;
+    color: #e5ffe5;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to the top */
+    min-height: 100vh;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+    padding: 0 10px; /* Add some padding on the sides */
+    box-sizing: border-box; /* Include padding in the element's total width */
+}
+
+.section-card {
+    background: #0b0f14;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 15px rgba(0, 255, 153, 0.3);
+    text-align: center;
+}
+
+.section-card h2 {
+    font-size: 1.8rem;
+    color: #00ff99;
+    margin-bottom: 15px;
+    text-shadow: 0 0 8px #00ff99;
+}
+
+/* ===================================== */
+/* Checkbox Group Styles */
+/* ===================================== */
+.checkbox-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Adjusted gap for better spacing */
+    margin: 20px 0;
+    flex-wrap: nowrap; /* Prevent wrapping */
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.checkbox-group input[type="checkbox"] {
+    display: none;
+}
+
+.box-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px; /* Adjusted fixed width for better mobile fit */
+    height: 60px;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    background-color: transparent;
+    font-size: 1.8rem; /* Adjusted font size */
+    font-weight: bold;
+    color: #00ff99;
+    transition: all 0.3s ease;
+}
+
+.checkbox-group input[type="checkbox"]:checked + .box-label {
+    background-color: #00ff99;
+    color: #0d1117;
+    box-shadow: 0 0 8px #00ff99;
+}
+
+.box-label:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 5px rgba(0, 255, 153, 0.7);
+}
+
+/* ===================================== */
+/* Button and Message Styles */
+/* ===================================== */
+.game-button {
+    background: #00ff99;
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.game-button:hover {
+    background: #0d1117;
+    color: #00ff99;
+    border: 2px solid #00ff99;
+    box-shadow: 0 0 10px #00ff99;
+}
+
+.game-result {
+    margin-top: 15px;
+    font-size: 1.8rem;
+    color: #00ffaa;
+    text-shadow: 0 0 5px #00ff99;
+}
+
+.prediction-box {
+    margin-top: 20px;
+    padding: 15px;
+    border: 2px dashed #00ff99;
+    border-radius: 8px;
+}
+
+.predicted-location {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: red;
+    text-shadow: 0 0 8px red;
+}
+
+/* ===================================== */
+/* History and Controls */
+/* ===================================== */
+.history-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.history-list li {
+    font-size: 1.2rem;
+    margin: 5px 0;
+    color: #ccc;
+}
+
+.history-list .bomb-location {
+    font-weight: bold;
+    color: red;
+    text-shadow: 0 0 3px red;
+}
+
+.empty-history {
+    color: #777;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+.history-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.undo-button,
+.reset-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+/* ===================================== */
+/* Blast Warning Popup */
+/* ===================================== */
+.blast-warning-popup {
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    font-size: 1.5rem;
+    font-weight: bold;
+    animation: blinker 1.5s linear infinite;
+    text-shadow: 0 0 10px black;
+    border: 3px solid red;
+    box-shadow: 0 0 20px red;
+}
+
+@keyframes blinker {
+    50% { opacity: 0; }
+}
+
+/* ===================================== */
+/* Mobile Responsiveness */
+/* ===================================== */
+@media (max-width: 768px) {
+    .section-card h2 {
+        font-size: 1.5rem;
+    }
+    .checkbox-group {
+        gap: 8px; /* Reduce gap further on smaller screens */
+    }
+    .box-label {
+        width: 50px; /* Further reduce box size */
+        height: 50px;
+        font-size: 1.4rem;
+    }
+    .game-button {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+    }
+    .game-result {
+        font-size: 1.2rem;
+    }
+    .predicted-location {
+        font-size: 2rem;
+    }
+    .history-list li {
+        font-size: 1rem;
+    }
+    .undo-button,
+    .reset-button {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+    }
+    .blast-warning-popup {
+        font-size: 1.2rem;
+        padding: 10px;
+        width: 80%; /* Ensure popup fits on mobile */
+        text-align: center;
+    }
+}
