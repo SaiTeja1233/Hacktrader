@@ -7,45 +7,45 @@ const OriginalGames = () => {
     const [selectedBoxes, setSelectedBoxes] = useState([]);
     const [prediction, setPrediction] = useState(null);
     const [resultMessage, setResultMessage] = useState(
-        "Add 5 trades to get a prediction."
+        "Add 2 trades to get a prediction."
     );
-    const [showBlastWarning, setShowBlastWarning] = useState(false);
+    const [showCongratsPopup, setShowCongratsPopup] = useState(false);
+    const [consecutiveWins, setConsecutiveWins] = useState(0);
 
-    const checkBlastWarning = (history) => {
-        if (history.length >= 3) {
-            const lastThree = history.slice(0, 3);
-            const counts = {};
-            lastThree.forEach((box) => {
-                counts[box] = (counts[box] || 0) + 1;
-            });
-
-            for (const box in counts) {
-                if (counts[box] >= 2) {
-                    setShowBlastWarning(true);
-                    return;
-                }
-            }
+    const checkCongratsPopup = (wins) => {
+        if (wins >= 10) {
+            setShowCongratsPopup(true);
+        } else {
+            setShowCongratsPopup(false);
         }
-        setShowBlastWarning(false);
     };
 
     const handleCheckboxChange = (event) => {
         const boxNumber = parseInt(event.target.value);
 
-        const newHistory = [boxNumber, ...bombHistory].slice(0, 5);
+        let newConsecutiveWins = consecutiveWins;
+        if (prediction !== null) {
+            if (boxNumber !== prediction) {
+                newConsecutiveWins += 1;
+            } else {
+                newConsecutiveWins = 0;
+            }
+        }
+        setConsecutiveWins(newConsecutiveWins);
+        checkCongratsPopup(newConsecutiveWins);
+
+        const newHistory = [boxNumber, ...bombHistory];
         setBombHistory(newHistory);
         setSelectedBoxes([boxNumber]);
 
         setResultMessage(`You selected Box ${boxNumber}.`);
 
-        checkBlastWarning(newHistory);
-
-        if (newHistory.length === 5) {
+        if (newHistory.length >= 2) {
             predictNextBomb(newHistory);
         } else {
             setPrediction(null);
             setResultMessage(
-                `Add ${5 - newHistory.length} more trades to get a prediction.`
+                `Add ${2 - newHistory.length} more trades to get a prediction.`
             );
         }
     };
@@ -56,16 +56,17 @@ const OriginalGames = () => {
             setBombHistory(newHistory);
             setSelectedBoxes([]);
             setPrediction(null);
-            checkBlastWarning(newHistory);
+            setConsecutiveWins(0);
+            setShowCongratsPopup(false);
             setResultMessage("Last entry has been undone.");
-            if (newHistory.length < 5) {
+            if (newHistory.length >= 2) {
+                predictNextBomb(newHistory);
+            } else {
                 setResultMessage(
                     `Add ${
-                        5 - newHistory.length
+                        2 - newHistory.length
                     } more trades to get a prediction.`
                 );
-            } else {
-                predictNextBomb(newHistory);
             }
         } else {
             setResultMessage("No history to undo.");
@@ -77,15 +78,49 @@ const OriginalGames = () => {
         setSelectedBoxes([]);
         setPrediction(null);
         setResultMessage("All data has been reset.");
-        setShowBlastWarning(false);
+        setShowCongratsPopup(false);
+        setConsecutiveWins(0);
     };
 
     const predictNextBomb = (currentHistory) => {
+        // Look at the last 2 trades first
+        const history2 = currentHistory.slice(0, 2);
+        const prediction2 = getSafestBox(history2);
+
+        if (prediction2.length === 1) {
+            setPrediction(prediction2[0]);
+            setResultMessage(
+                `Prediction: The safest box is likely Box ${prediction2[0]}.`
+            );
+            return;
+        }
+
+        // If no single safest box after 2 trades, check last 3 trades
+        if (currentHistory.length >= 3) {
+            const history3 = currentHistory.slice(0, 3);
+            const prediction3 = getSafestBox(history3);
+
+            if (prediction3.length > 0) {
+                const finalPrediction =
+                    prediction3[Math.floor(Math.random() * prediction3.length)];
+                setPrediction(finalPrediction);
+                setResultMessage(
+                    `Prediction: The safest box is likely Box ${finalPrediction}.`
+                );
+                return;
+            }
+        }
+
+        setPrediction(null);
+        setResultMessage("No clear safest box found. Add another trade.");
+    };
+
+    const getSafestBox = (history) => {
         const counts = {};
         for (let i = 1; i <= 5; i++) {
             counts[i] = 0;
         }
-        currentHistory.forEach((bombLocation) => {
+        history.forEach((bombLocation) => {
             counts[bombLocation] = (counts[bombLocation] || 0) + 1;
         });
 
@@ -101,49 +136,26 @@ const OriginalGames = () => {
                 safestBoxes.push(parseInt(box));
             }
         }
-
-        let finalPrediction = null;
-        if (safestBoxes.length === 1) {
-            finalPrediction = safestBoxes[0];
-        } else {
-            // Find a new prediction that isn't the previous one
-            const otherSafestBoxes = safestBoxes.filter(
-                (box) => box !== prediction
-            );
-            if (otherSafestBoxes.length > 0) {
-                finalPrediction = otherSafestBoxes[0];
-            } else {
-                finalPrediction = safestBoxes[0];
-            }
-        }
-
-        if (finalPrediction) {
-            setPrediction(finalPrediction);
-            setResultMessage(
-                `Prediction: The safest box is likely Box ${finalPrediction}.`
-            );
-        } else {
-            setPrediction(null);
-            setResultMessage("Prediction failed: No clear safest box found.");
-        }
+        return safestBoxes;
     };
 
     return (
         <>
             <NavBar title="ORIGINAL GAMES" />
             <div className="game-container">
-                {showBlastWarning && (
+                {showCongratsPopup && (
                     <div className="blast-warning-popup">
-                        <p>⚠ Better cash out! High chance of a blast!</p>
+                        <p>🎉 Congratulations! You've won 10 games in a row!</p>
                     </div>
                 )}
+
                 <div className="section-card">
-                    <h2>Previous Bomb Locations (Last 5)</h2>
+                    <h2>Previous Bomb Locations</h2>
                     <ul className="history-list">
                         {bombHistory.length > 0 ? (
                             bombHistory.map((bomb, index) => (
                                 <li key={index}>
-                                    Trade #{bombHistory.length - index}: Box{" "}
+                                    Trade #{bombHistory.length - index}: Box
                                     <span className="bomb-location">
                                         {bomb}
                                     </span>
@@ -155,6 +167,7 @@ const OriginalGames = () => {
                             </p>
                         )}
                     </ul>
+
                     <div className="history-controls">
                         <button
                             className="game-button undo-button"
@@ -162,6 +175,7 @@ const OriginalGames = () => {
                         >
                             Undo Last
                         </button>
+
                         <button
                             className="game-button reset-button"
                             onClick={resetAll}
