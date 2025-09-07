@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./NavBar";
-import "../wingoTrader.css";
+import "./wingoTrader.css";
 // Helper function to get color and size
 const getCategory = (num) => {
     let colorText, numColorClass;
@@ -50,7 +50,7 @@ const WingoTrader = () => {
     const [numInput, setNumInput] = useState("");
     const [result, setResult] = useState("");
     const [prediction, setPrediction] = useState(null);
-    const [logicUsed, setLogicUsed] = useState(""); // This state is now used
+    const [logicUsed, setLogicUsed] = useState("");
 
     useEffect(() => {
         const periodEl = document.getElementById("periodInput");
@@ -171,7 +171,7 @@ const WingoTrader = () => {
             setLogicUsed(currentLogicUsed);
             setResult(
                 currentPrediction
-                    ? `${currentLogicUsed} → Result: ${
+                    ? `Result: ${
                           getCategory(currentPrediction).colorText ||
                           getCategory(currentPrediction).sizeText
                       }`
@@ -249,7 +249,10 @@ const WingoTrader = () => {
                 <div id="prediction-box-container">
                     <div className="prediction-container">
                         <div id="prediction-box">
-                            <p>{logicUsed}</p>
+                            {/* This is the new line of code that uses logicUsed */}
+                            <p className="logic-used">
+                                Logic Used: {logicUsed}
+                            </p>
                             <div className="result-line">
                                 🎯 WIN-GO : 1 Min WinGo
                             </div>

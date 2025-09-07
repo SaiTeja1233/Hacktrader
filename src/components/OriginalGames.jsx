@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import NavBar from "./NavBar";
-import "../originalGames.css";
+import "./originalGames.css";
 
 const OriginalGames = () => {
     const [bombHistory, setBombHistory] = useState([]);
