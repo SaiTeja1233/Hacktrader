@@ -1,6 +1,19 @@
-/* ===================================== */
-/* WingoTrader Styles */
-/* ===================================== */
+/* ========== BASE (Hacker Theme) ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Courier New", monospace;
+}
+
+body {
+    background: #0d1117;
+    color: #00ff99;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 /* Headings */
 h2 {
@@ -11,195 +24,140 @@ h2 {
     text-align: center;
 }
 
-/* INPUT SECTION */
-#input-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 25px;
-    justify-content: center;
-    width: 100%;
-}
-
-#input-group input {
-    margin-top: 5%;
-    padding: 24px;
-    border: 2px solid #00ff99;
-    border-radius: 10px;
-    outline: none;
-    background: #0b0f14;
-    color: #00ff99;
-    font-size: 2.5rem;
-    width: 60%;
-    transition: all 0.3s ease;
-}
-
-#input-group input:focus {
-    box-shadow: 0 0 12px #00ff99;
-    border-color: #00ffcc;
-}
-
-.add-btn {
-    background: #00ff99;
-    margin-top: 5%;
-    color: #0d1117;
-    border: none;
-    border-radius: 10px;
-    padding: 18px 32px;
-    font-size: 2rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.add-btn:hover {
+/* ========== TIMER (Hacker Theme) ========== */
+.timer-container {
+    text-align: center;
+    margin-top: 60px;
+    padding: 20px 25px;
     background: #0d1117;
-    color: #00ff99;
-    border: 2px solid #00ff99;
-    box-shadow: 0 0 15px #00ff99;
+    border: 1px solid #00ff99;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 153, 0.6), 0 0 40px rgba(0, 255, 153, 0.3);
+    backdrop-filter: blur(5px);
+    transition: transform 0.2s ease-in-out;
 }
 
-/* CONTROLS */
-#controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 30px;
-    justify-content: center;
-    width: 100%;
+.timer-container:hover {
+    transform: scale(1.05);
 }
 
-.predict-btn {
-    position: fixed;
-    bottom: 100px;
-    border: 2px solid #00ff99;
-    border-radius: 10px;
-    padding: 40px 20px;
-    font-size: 2.5rem;
+.timer-container h2 {
+    font-size: 1.4rem;
     color: #00ff99;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    font-family: "Courier New", monospace;
+    letter-spacing: 1px;
+}
+
+.countdown {
+    display: inline-block;
+    font-size: 3rem;
     font-weight: bold;
-    background-color: #00ff995c;
-}
-
-.predict-btn:hover {
-    background: #00ff99;
-    color: #0d1117;
-    box-shadow: 0 0 18px #00ff99;
-}
-
-#result {
-    flex-basis: 100%;
-    margin-top: 15px;
-    text-align: center;
-    font-size: 2rem;
-    color: #00ffaa;
-    text-shadow: 0 0 8px #00ff99;
-}
-
-/* PREDICTION BOX */
-#prediction-box-container {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
-.prediction-container {
-    background: rgba(10, 15, 20, 0.95);
+    color: #00ff99;
+    background-color: rgba(0, 255, 153, 0.05);
     border: 2px solid #00ff99;
-    border-radius: 14px;
-    padding: 40px;
-    margin-bottom: 25px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0, 255, 153, 0.5);
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-shadow: 0 0 8px #00ff99, 0 0 20px rgba(0, 255, 153, 0.3);
+    font-family: "Courier New", monospace;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.countdown:hover {
+    background-color: rgba(0, 255, 153, 0.1);
+    box-shadow: 0 0 15px #00ff99, 0 0 30px rgba(0, 255, 153, 0.5);
+}
+
+/* ========== Prediction Box and Button ========== */
+.prediction-result {
+    padding: 15px;
+    background-color: #1a1a1a;
+    border: 2px solid #00ff99;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+    width: 80%;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    margin: 30px auto;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-#prediction-box .result-line {
-    margin: 10px 0;
-    font-size: 2.5rem;
-}
-
-.copy-btn-container {
-    width: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.copy-btn {
-    background-color: #0b0f14;
-    width: 250px;
-    height: 60px;
-    border: 2px solid #00ff99;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 2rem;
-    overflow: hidden;
-    transition-duration: 700ms;
+.prediction-result h3 {
+    font-size: 1.5rem;
     color: #00ff99;
-    position: relative;
+    text-shadow: 0 0 5px #00ff99;
+    margin: 0 0 5px 0;
 }
 
-.copy-btn span:first-child {
-    color: #00ff99;
-    position: absolute;
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.prediction-result p {
+    font-size: 1.2rem;
+    margin: 0;
 }
 
-.copy-btn span:last-child {
-    position: absolute;
-    color: #00ff99;
-    opacity: 0;
-    transform: translateY(100%) translateX(-50%);
-    top: 50%;
-    left: 50%;
-}
-
-.copy-btn:focus {
+.copy-button {
+  
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #0d1117;
     background-color: #00ff99;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.copy-button:hover {
+    background-color: #00e680;
+}
+
+.copy-button:active {
+    transform: scale(0.98);
+}
+
+.prediction-button {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 15px 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
     color: #0d1117;
-    transition-duration: 500ms;
+    background-color: #00ff99;
+    border: 2px solid #00ff99;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.copy-btn:focus span:first-child {
-    color: #0d1117;
-    transform: translateX(-50%) translateY(-150%);
-    opacity: 0;
-    transition-duration: 500ms;
+.prediction-button:hover {
+    background-color: #00e680;
+    box-shadow: 0 0 15px #00ff99, 0 0 30px #00ff99;
 }
 
-.copy-btn:focus span:last-child {
-    color: #0d1117;
-    transform: translateX(-50%) translateY(-50%);
-    opacity: 1;
-    transition-delay: 300ms;
-    transition-duration: 500ms;
+.prediction-button:active {
+    transform: translateX(-50%) translateY(2px);
+    box-shadow: 0 0 5px #00ff99;
 }
 
-/* TABLE */
-.table-container {
-    width: 100%;
-    margin-top: 20px;
-}
-
+/* ========== Table and Data ========== */
 table {
     width: 100%;
+    margin-top: 20px;
     border-collapse: collapse;
-    min-width: unset;
+    min-width: 350px;
+    max-width: 1200px;
     font-size: 1rem;
+    background: #0b0f14;
+    border: 2px solid #00ff99;
+    border-radius: 12px;
 }
 
 thead {
@@ -209,16 +167,21 @@ thead {
 
 thead th {
     padding: 12px;
-    font-size: 2rem;
+    font-size: 1.6rem;
     border-bottom: 2px solid #00ff99;
+    text-align: center;
 }
 
 tbody td {
-    padding: 12px;
+    padding: 80px;
     text-align: center;
     border-bottom: 1px solid #003322;
-    font-size: 4rem;
+    font-size: 2rem;
     color: #e5ffe5;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
 }
 
 tbody td:first-child {
@@ -226,131 +189,78 @@ tbody td:first-child {
     color: #00ffaa;
 }
 
-/* Updated color classes */
+/* Color classes for the table numbers */
+.red-text {
+    color: #ff3333;
+    text-shadow: 0 0 8px #ff3333;
+}
+
+.green-text {
+    color: #00ff99;
+    text-shadow: 0 0 8px #00ff99;
+}
+
+.purple-text {
+    color: #b800ff;
+    text-shadow: 0 0 8px #b800ff;
+}
+
+/* New classes for the prediction text color */
 .red {
-    color: red !important;
+    color: #ff3333;
 }
 
 .green {
-    color: green !important;
+    color: #00ff99;
 }
 
-.purple {
-    color: purple !important;
+.blue {
+    color: #33aaff;
 }
 
-/* New class for a specific element */
-td.green-text {
-    color: green !important;
+/* ========== Responsive Design ========== */
+@media (max-width: 1024px) {
+    h2 {
+        font-size: 2.5rem;
+    }
+
+    thead th {
+        font-size: 1.2rem;
+    }
+
+    tbody td {
+        font-size: 1.8rem;
+        padding: 60px;
+    }
 }
 
-td.red-text {
-    color: red !important;
-}
-
-td.purple-text {
-    color: purple !important;
-}
-
-/* ================================== */
-/* MOBILE RESPONSIVENESS */
-/* ================================== */
 @media (max-width: 768px) {
     h2 {
         font-size: 2rem;
     }
 
-    #input-group {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-
-    #input-group input {
-        width: 100%;
-        font-size: 1.5rem;
-        padding: 15px;
-    }
-
-    .add-btn {
-        width: 100%;
-        padding: 15px 25px;
-        font-size: 1.5rem;
-    }
-    
-    .predict-btn {
-        position: static;
-        margin-top: 20px;
-        width: 100%;
-        padding: 20px 15px;
-        font-size: 1.5rem;
-    }
-
-    #result {
-        font-size: 1.2rem;
-        margin-top: 10px;
-    }
-
-    .prediction-container {
-        padding: 20px;
-    }
-
-    #prediction-box .result-line {
-        font-size: 1.2rem;
-        margin: 5px 0;
-    }
-
-    .copy-btn {
-        width: 180px;
-        height: 50px;
-        font-size: 1.2rem;
-    }
-
-    .copy-btn:focus {
-        width: 180px;
-        height: 50px;
-    }
-
-    .copy-btn:focus:end {
-        width: 180px;
-        height: 50px;
-    }
-
-    /* Key changes for non-scrolling table */
-    thead {
-        display: none;
-    }
-    
-    table, tbody, tr, td {
-        display: block;
-        width: 100%;
-        text-align: right;
-    }
-
-    tr {
-        margin-bottom: 15px;
-        border: 2px solid #00ff99;
-        border-radius: 10px;
-        padding: 10px;
+    thead th {
+        font-size: 1rem;
     }
 
     tbody td {
-        border-bottom: 1px solid #003322;
-        font-size: 2.5rem;
-        position: relative;
-    }
-
-    tbody td:last-child {
-        border-bottom: none;
-    }
-
-    /* Add "fake" headers using pseudo-elements */
-    tbody td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        font-weight: bold;
-        color: #00ffaa;
         font-size: 1.5rem;
+        padding: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    h2 {
+        font-size: 1.6rem;
+    }
+
+    thead th {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    tbody td {
+        font-size: 1rem;
+        padding: 20px 5px;
     }
 }

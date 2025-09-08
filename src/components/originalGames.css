@@ -9,7 +9,8 @@ body {
     padding: 0;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align to the top */
+    align-items: flex-start;
+    /* Align to the top */
     min-height: 100vh;
 }
 
@@ -17,8 +18,10 @@ body {
     width: 100%;
     max-width: 600px;
     margin-top: 50px;
-    padding: 0 10px; /* Add some padding on the sides */
-    box-sizing: border-box; /* Include padding in the element's total width */
+    padding: 0 10px;
+    /* Add some padding on the sides */
+    box-sizing: border-box;
+    /* Include padding in the element's total width */
 }
 
 .section-card {
@@ -44,9 +47,11 @@ body {
 .checkbox-group {
     display: flex;
     justify-content: center;
-    gap: 15px; /* Adjusted gap for better spacing */
+    gap: 15px;
+    /* Adjusted gap for better spacing */
     margin: 20px 0;
-    flex-wrap: nowrap; /* Prevent wrapping */
+    flex-wrap: nowrap;
+    /* Prevent wrapping */
 }
 
 .checkbox-group label {
@@ -64,12 +69,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60px; /* Adjusted fixed width for better mobile fit */
+    width: 60px;
+    /* Adjusted fixed width for better mobile fit */
     height: 60px;
     border: 2px solid #00ff99;
     border-radius: 10px;
     background-color: transparent;
-    font-size: 1.8rem; /* Adjusted font size */
+    font-size: 1.8rem;
+    /* Adjusted font size */
     font-weight: bold;
     color: #00ff99;
     transition: all 0.3s ease;
@@ -125,8 +132,8 @@ body {
 .predicted-location {
     font-size: 2.5rem;
     font-weight: bold;
-    color: red;
-    text-shadow: 0 0 8px red;
+    color: #ff3333; /* Updated color to match the "blast warning" */
+    text-shadow: 0 0 8px #ff3333; /* Updated text-shadow to match the color */
 }
 
 /* ===================================== */
@@ -191,7 +198,9 @@ body {
 }
 
 @keyframes blinker {
-    50% { opacity: 0; }
+    50% {
+        opacity: 0;
+    }
 }
 
 /* ===================================== */
@@ -202,10 +211,12 @@ body {
         font-size: 1.5rem;
     }
     .checkbox-group {
-        gap: 8px; /* Reduce gap further on smaller screens */
+        gap: 8px;
+        /* Reduce gap further on smaller screens */
     }
     .box-label {
-        width: 50px; /* Further reduce box size */
+        width: 50px;
+        /* Further reduce box size */
         height: 50px;
         font-size: 1.4rem;
     }
@@ -230,7 +241,8 @@ body {
     .blast-warning-popup {
         font-size: 1.2rem;
         padding: 10px;
-        width: 80%; /* Ensure popup fits on mobile */
+        width: 80%;
+        /* Ensure popup fits on mobile */
         text-align: center;
     }
 }

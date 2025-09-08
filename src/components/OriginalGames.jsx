@@ -34,7 +34,7 @@ const OriginalGames = () => {
         setConsecutiveWins(newConsecutiveWins);
         checkCongratsPopup(newConsecutiveWins);
 
-        const newHistory = [boxNumber, ...bombHistory];
+        const newHistory = [boxNumber, ...bombHistory].slice(0, 10);
         setBombHistory(newHistory);
         setSelectedBoxes([boxNumber]);
 
@@ -82,39 +82,6 @@ const OriginalGames = () => {
         setConsecutiveWins(0);
     };
 
-    const predictNextBomb = (currentHistory) => {
-        // Look at the last 2 trades first
-        const history2 = currentHistory.slice(0, 2);
-        const prediction2 = getSafestBox(history2);
-
-        if (prediction2.length === 1) {
-            setPrediction(prediction2[0]);
-            setResultMessage(
-                `Prediction: The safest box is likely Box ${prediction2[0]}.`
-            );
-            return;
-        }
-
-        // If no single safest box after 2 trades, check last 3 trades
-        if (currentHistory.length >= 3) {
-            const history3 = currentHistory.slice(0, 3);
-            const prediction3 = getSafestBox(history3);
-
-            if (prediction3.length > 0) {
-                const finalPrediction =
-                    prediction3[Math.floor(Math.random() * prediction3.length)];
-                setPrediction(finalPrediction);
-                setResultMessage(
-                    `Prediction: The safest box is likely Box ${finalPrediction}.`
-                );
-                return;
-            }
-        }
-
-        setPrediction(null);
-        setResultMessage("No clear safest box found. Add another trade.");
-    };
-
     const getSafestBox = (history) => {
         const counts = {};
         for (let i = 1; i <= 5; i++) {
@@ -136,7 +103,78 @@ const OriginalGames = () => {
                 safestBoxes.push(parseInt(box));
             }
         }
+
+        // Deterministic Tie-Breaker: choose the one that appeared earliest in the history.
+        if (safestBoxes.length > 1) {
+            const oldestSafestBox = history.find((item) =>
+                safestBoxes.includes(item)
+            );
+            return [oldestSafestBox];
+        }
+
         return safestBoxes;
+    };
+
+    const predictNextBomb = (currentHistory) => {
+        // 1. Check for Alternating Pattern (highest priority)
+        if (currentHistory.length >= 4) {
+            const history4 = currentHistory.slice(0, 4);
+            if (
+                history4[0] === history4[2] &&
+                history4[1] === history4[3] &&
+                history4[0] !== history4[1]
+            ) {
+                const alternatingPrediction = history4[0];
+                setPrediction(alternatingPrediction);
+                setResultMessage(
+                    `Super Prediction: The alternating pattern suggests Box ${alternatingPrediction}.`
+                );
+                return;
+            }
+        }
+
+        // 2. Check for Skip Pattern
+        if (currentHistory.length >= 3) {
+            const history3 = currentHistory.slice(0, 3);
+            const diff1 = history3[0] - history3[1];
+            const diff2 = history3[1] - history3[2];
+            if (diff1 === diff2 && Math.abs(diff1) > 0) {
+                const skipPrediction = history3[0] + diff1;
+                if (skipPrediction >= 1 && skipPrediction <= 5) {
+                    setPrediction(skipPrediction);
+                    setResultMessage(
+                        `Super Prediction: The skip pattern suggests Box ${skipPrediction}.`
+                    );
+                    return;
+                }
+            }
+        }
+
+        // 3. Fallback to Frequency Bias (safest bet)
+        if (currentHistory.length >= 2) {
+            const safestBoxes = getSafestBox(currentHistory);
+            if (safestBoxes.length === 1) {
+                setPrediction(safestBoxes[0]);
+                setResultMessage(
+                    `Super Prediction: The safest box is likely Box ${safestBoxes[0]}.`
+                );
+                return;
+            } else if (safestBoxes.length > 0) {
+                // In this case, getSafestBox should always return a single value due to the tie-breaker logic.
+                const finalPrediction = safestBoxes[0];
+                setPrediction(finalPrediction);
+                setResultMessage(
+                    `Super Prediction: The safest boxes are ${safestBoxes.join(
+                        ", "
+                    )}. We've deterministically chosen Box ${finalPrediction}.`
+                );
+                return;
+            }
+        }
+
+        // Default case if no pattern is found
+        setPrediction(null);
+        setResultMessage("No clear pattern found. Add more trades.");
     };
 
     return (
@@ -149,6 +187,44 @@ const OriginalGames = () => {
                     </div>
                 )}
 
+                {/* Prediction Section (Now at the top) */}
+                <div className="section-card">
+                    <div className="game-result">
+                        {resultMessage && <p>{resultMessage}</p>}
+                        {prediction && (
+                            <div className="prediction-box">
+                                <p>Safest Box to Bet On:</p>
+                                <span className="predicted-location">
+                                    Box {prediction}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Select Bomb Location Section (Middle) */}
+                <div className="section-card">
+                    <h2>Select Last Bomb Location</h2>
+                    <p>
+                        Click on the box where the bomb was found in the last
+                        trade.
+                    </p>
+                    <div className="checkbox-group">
+                        {[1, 2, 3, 4, 5].map((box) => (
+                            <label key={box}>
+                                <input
+                                    type="checkbox"
+                                    value={box}
+                                    checked={selectedBoxes.includes(box)}
+                                    onChange={handleCheckboxChange}
+                                />
+                                <span className="box-label">{box}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* History Section (Now at the bottom) */}
                 <div className="section-card">
                     <h2>Previous Bomb Locations</h2>
                     <ul className="history-list">
@@ -182,41 +258,6 @@ const OriginalGames = () => {
                         >
                             Reset All
                         </button>
-                    </div>
-                </div>
-
-                <div className="section-card">
-                    <h2>Select Last Bomb Location</h2>
-                    <p>
-                        Click on the box where the bomb was found in the last
-                        trade.
-                    </p>
-                    <div className="checkbox-group">
-                        {[1, 2, 3, 4, 5].map((box) => (
-                            <label key={box}>
-                                <input
-                                    type="checkbox"
-                                    value={box}
-                                    checked={selectedBoxes.includes(box)}
-                                    onChange={handleCheckboxChange}
-                                />
-                                <span className="box-label">{box}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="section-card">
-                    <div className="game-result">
-                        {resultMessage && <p>{resultMessage}</p>}
-                        {prediction && (
-                            <div className="prediction-box">
-                                <p>Safest Box to Bet On:</p>
-                                <span className="predicted-location">
-                                    Box {prediction}
-                                </span>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
