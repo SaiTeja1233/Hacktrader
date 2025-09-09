@@ -4,19 +4,51 @@ import "./wingoTrader.css";
 
 // Helper function to categorize the numbers (color and size)
 const getCategory = (num) => {
-    let colorText, numColorClass;
-    if (num === 0 || num === 5) {
+    let colorText, numColorClass, numberStyle, colorStyle;
+
+    // Check for 0 and 5 first, as they have special styling
+    if (num === 0) {
         colorText = "Purple";
-        numColorClass = "purple-text";
+        numColorClass = "linear-gradient-text";
+        numberStyle = {
+            background: "linear-gradient(to right, red, purple)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+        };
+        colorStyle = {
+            background: "linear-gradient(to right, red, purple)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+        };
+    } else if (num === 5) {
+        colorText = "Purple";
+        numColorClass = "linear-gradient-text";
+        numberStyle = {
+            background: "linear-gradient(to right, green, purple)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+        };
+        colorStyle = {
+            background: "linear-gradient(to right, green, purple)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+        };
     } else if (num % 2 === 0) {
         colorText = "Red";
         numColorClass = "red-text";
+        numberStyle = {};
+        colorStyle = {};
     } else {
         colorText = "Green";
         numColorClass = "green-text";
+        numberStyle = {};
+        colorStyle = {};
     }
+
     const sizeText = num <= 4 ? "SMALL" : "BIG";
-    return { colorText, numColorClass, sizeText };
+
+    // Return a single object with all the styling information
+    return { colorText, numColorClass, sizeText, numberStyle, colorStyle };
 };
 
 // Prediction functions
@@ -62,6 +94,7 @@ const WingoTrader = () => {
     const [predictionColor, setPredictionColor] = useState("");
     const [nextPeriod, setNextPeriod] = useState(null);
     const [copyStatus, setCopyStatus] = useState("Copy");
+    const [lastPredictions, setLastPredictions] = useState([]);
     const timerRef = useRef(null);
     const predictionTimerRef = useRef(null);
 
@@ -154,53 +187,82 @@ const WingoTrader = () => {
         const colorSeq = top4Numbers.map((num) => (num % 2 === 0 ? "R" : "G"));
         const sizeSeq = top4Numbers.map((num) => (num <= 4 ? "S" : "B"));
 
-        let colorPrediction = null;
-        let sizePrediction = null;
+        const predictionStrategies = [
+            () => getNextPattern(colorSeq),
+            () => getNextPattern(sizeSeq),
+            () => getAlternateNext(colorSeq),
+            () => getAlternateNext(sizeSeq),
+            () => getMajority(colorSeq),
+            () => getMajority(sizeSeq),
+        ];
 
-        if (colorSeq[0] === colorSeq[1]) {
-            colorPrediction = getNextPattern(colorSeq);
-        }
-        if (sizeSeq[0] === sizeSeq[1]) {
-            sizePrediction = getNextPattern(sizeSeq);
-        }
-        if (colorSeq[0] !== colorSeq[1]) {
-            colorPrediction = getAlternateNext(colorSeq);
-        }
-        if (sizeSeq[0] !== sizeSeq[1]) {
-            sizePrediction = getAlternateNext(sizeSeq);
-        }
-        if (
-            colorSeq[0] === colorSeq[1] &&
-            colorSeq[1] === colorSeq[2] &&
-            colorSeq[2] === colorSeq[3]
-        ) {
-            colorPrediction = getMajority(colorSeq);
-        }
-        if (
-            sizeSeq[0] === sizeSeq[1] &&
-            sizeSeq[1] === sizeSeq[2] &&
-            sizeSeq[2] === sizeSeq[3]
-        ) {
-            sizePrediction = getMajority(sizeSeq);
+        let finalPredictionText = "No clear prediction.";
+        let finalPredictionColorClass = "gray";
+        let newPredictionValue = null;
+
+        for (const strategy of predictionStrategies) {
+            const result = strategy();
+            if (result) {
+                newPredictionValue = result;
+                break;
+            }
         }
 
-        let finalPrediction = "No clear prediction.";
-        let finalPredictionColor = "gray";
+        // Avoid repeating the same prediction more than twice
+        if (lastPredictions.length >= 2) {
+            if (
+                newPredictionValue === lastPredictions[0] &&
+                newPredictionValue === lastPredictions[1]
+            ) {
+                const alternativeStrategies = [
+                    () => {
+                        const allColors = apiNumbers.map((item) =>
+                            getCategory(item.value).colorText.charAt(0)
+                        );
+                        return getMajority(allColors);
+                    },
+                    () => {
+                        const allSizes = apiNumbers.map((item) =>
+                            getCategory(item.value).sizeText.charAt(0)
+                        );
+                        return getMajority(allSizes);
+                    },
+                ];
 
-        if (colorPrediction) {
-            finalPrediction = `Color: ${
-                colorPrediction === "R" ? "Red" : "Green"
-            }`;
-            finalPredictionColor = colorPrediction === "R" ? "red" : "green";
-        } else if (sizePrediction) {
-            finalPrediction = `Size: ${
-                sizePrediction === "S" ? "Small" : "Big"
-            }`;
-            finalPredictionColor = "blue";
+                for (const altStrategy of alternativeStrategies) {
+                    const altResult = altStrategy();
+                    if (altResult && altResult !== newPredictionValue) {
+                        newPredictionValue = altResult;
+                        break;
+                    }
+                }
+            }
         }
 
-        setPrediction(finalPrediction);
-        setPredictionColor(finalPredictionColor);
+        if (newPredictionValue) {
+            if (newPredictionValue === "R") {
+                finalPredictionText = "Color: Green";
+                finalPredictionColorClass = "green";
+            } else if (newPredictionValue === "G") {
+                finalPredictionText = "Color: Red";
+                finalPredictionColorClass = "red";
+            } else if (newPredictionValue === "S") {
+                finalPredictionText = "Size: Big";
+                finalPredictionColorClass = "blue";
+            } else if (newPredictionValue === "B") {
+                finalPredictionText = "Size: Small";
+                finalPredictionColorClass = "blue";
+            }
+            setLastPredictions((prev) => [
+                newPredictionValue,
+                ...prev.slice(0, 1),
+            ]);
+        } else {
+            setLastPredictions([]);
+        }
+
+        setPrediction(finalPredictionText);
+        setPredictionColor(finalPredictionColorClass);
 
         predictionTimerRef.current = setTimeout(() => {
             setPrediction(null);
@@ -209,43 +271,41 @@ const WingoTrader = () => {
         }, 10000);
     };
 
-   const handleCopyClick = async () => {
-       if (
-           !prediction ||
-           prediction.includes("No clear") ||
-           prediction.includes("Not enough")
-       ) {
-           setCopyStatus("No prediction to copy");
-           setTimeout(() => setCopyStatus("Copy"), 2000);
-           return;
-       }
+    const handleCopyClick = async () => {
+        if (
+            !prediction ||
+            prediction.includes("No clear") ||
+            prediction.includes("Not enough")
+        ) {
+            setCopyStatus("No prediction to copy");
+            setTimeout(() => setCopyStatus("Copy"), 2000);
+            return;
+        }
 
-       const cleanedPrediction = prediction.replace(/^(Color|Size):\s*/, "");
-
-       // Get the last 3 digits of the period number
-       const shortPeriod = nextPeriod ? nextPeriod.slice(-3) : "N/A";
-
-       const formattedText = `╭⚬──────────────⚬╮
+        const cleanedPrediction = prediction.replace(/^(Color|Size):\s*/, "");
+        const shortPeriod = nextPeriod ? nextPeriod.slice(-3) : "N/A";
+        const formattedText = `╭⚬──────────────⚬╮
 │ ....⭐ 1 MinWinGo ⭐....
 │⚬───────────────⚬
 │⏳PERIOD : ${shortPeriod}
 │🔮PREDICTION : ${cleanedPrediction}
 ╰⚬──────────────⚬╯`;
 
-       try {
-           await navigator.clipboard.writeText(formattedText);
-           setCopyStatus("Copied!");
-           setTimeout(() => {
-               setCopyStatus("Copy");
-           }, 2000);
-       } catch (err) {
-           console.error("Failed to copy text: ", err);
-           setCopyStatus("Failed!");
-           setTimeout(() => {
-               setCopyStatus("Copy");
-           }, 2000);
-       }
-   };
+        try {
+            await navigator.clipboard.writeText(formattedText);
+            setCopyStatus("Copied!");
+            setTimeout(() => {
+                setCopyStatus("Copy");
+            }, 2000);
+        } catch (err) {
+            console.error("Failed to copy text: ", err);
+            setCopyStatus("Failed!");
+            setTimeout(() => {
+                setCopyStatus("Copy");
+            }, 2000);
+        }
+    };
+
     return (
         <>
             <NavBar title="WIN-GO TRADER" />
@@ -294,18 +354,24 @@ const WingoTrader = () => {
                             </tr>
                         ) : apiNumbers.length > 0 ? (
                             apiNumbers.map((entry) => {
-                                const { colorText, numColorClass, sizeText } =
-                                    getCategory(entry.value);
+                                const {
+                                    colorText,
+                                    numColorClass,
+                                    sizeText,
+                                    numberStyle,
+                                    colorStyle,
+                                } = getCategory(entry.value);
                                 return (
                                     <tr key={entry.periodNumber}>
                                         <td>{entry.periodNumber}</td>
-                                        <td className={numColorClass}>
+                                        <td
+                                            className={numColorClass}
+                                            style={numberStyle}
+                                        >
                                             {entry.value}
                                         </td>
                                         <td>
-                                            <span
-                                                className={colorText.toLowerCase()}
-                                            >
+                                            <span style={colorStyle}>
                                                 {colorText}
                                             </span>
                                         </td>
