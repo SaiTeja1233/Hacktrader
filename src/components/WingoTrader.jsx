@@ -8,7 +8,7 @@ const getCategory = (num) => {
 
     // Check for 0 and 5 first, as they have special styling
     if (num === 0) {
-        colorText = "Purple";
+        colorText = "Red";
         numColorClass = "linear-gradient-text";
         numberStyle = {
             background: "linear-gradient(to right, red, purple)",
@@ -21,7 +21,7 @@ const getCategory = (num) => {
             WebkitTextFillColor: "transparent",
         };
     } else if (num === 5) {
-        colorText = "Purple";
+        colorText = "Green";
         numColorClass = "linear-gradient-text";
         numberStyle = {
             background: "linear-gradient(to right, green, purple)",
@@ -37,52 +37,152 @@ const getCategory = (num) => {
         colorText = "Red";
         numColorClass = "red-text";
         numberStyle = {};
-        colorStyle = {};
+        colorStyle = { color: "red" };
     } else {
         colorText = "Green";
         numColorClass = "green-text";
         numberStyle = {};
-        colorStyle = {};
+        colorStyle = { color: "green" };
     }
 
     const sizeText = num <= 4 ? "SMALL" : "BIG";
+    const sizeStyle = num <= 4 ? { color: "orange" } : { color: "#ADD8E6" };
 
     // Return a single object with all the styling information
-    return { colorText, numColorClass, sizeText, numberStyle, colorStyle };
+    return {
+        colorText,
+        numColorClass,
+        sizeText,
+        numberStyle,
+        colorStyle,
+        sizeStyle,
+    };
 };
 
-// Prediction functions
-const getNextPattern = (seq) => {
-    for (let i = 3; i <= 6; i++) {
-        const lastPattern = seq.slice(0, i).join("");
-        for (let j = 1; j < seq.length - i; j++) {
-            const comparePattern = seq.slice(j, j + i).join("");
-            if (comparePattern === lastPattern && seq[j + i]) {
-                return seq[j + i];
-            }
+// --- Prediction Logic with Confidence Scores ---
+const findWinningLogic = (historicalSeq) => {
+    if (historicalSeq.length < 4) return null;
+
+    const latestResult = historicalSeq[0];
+    const previousData = historicalSeq.slice(1);
+
+    const strategies = [
+        // Pattern Recognition (High Confidence)
+        {
+            name: "Pattern (3)",
+            confidence: 10,
+            func: (seq) => {
+                if (seq.length < 6) return null;
+                const pattern = seq.slice(0, 3).join("");
+                return seq.slice(3, 6).join("") === pattern
+                    ? latestResult
+                    : null;
+            },
+        },
+        {
+            name: "Consecutive",
+            confidence: 9,
+            func: (seq) => {
+                if (seq.length < 3) return null;
+                return seq.slice(0, 3).every((val) => val === latestResult)
+                    ? latestResult
+                    : null;
+            },
+        },
+        {
+            name: "Alternating (A,B,A,B)",
+            confidence: 8,
+            func: (seq) => {
+                if (seq.length < 4) return null;
+                return seq[0] === seq[2] &&
+                    seq[1] === seq[3] &&
+                    seq[0] !== seq[1]
+                    ? latestResult
+                    : null;
+            },
+        },
+        // Trend Analysis (Medium Confidence)
+        {
+            name: "Pattern (2)",
+            confidence: 7,
+            func: (seq) => {
+                if (seq.length < 4) return null;
+                const pattern = seq.slice(0, 2).join("");
+                return seq.slice(2, 4).join("") === pattern
+                    ? latestResult
+                    : null;
+            },
+        },
+        {
+            name: "Alternating (A,B,A)",
+            confidence: 6,
+            func: (seq) => {
+                if (seq.length < 3) return null;
+                return seq[0] === seq[2] && seq[0] !== seq[1]
+                    ? latestResult
+                    : null;
+            },
+        },
+        {
+            name: "Reverse Alternating (A,B,B,A)",
+            confidence: 5.5,
+            func: (seq) => {
+                if (seq.length < 4) return null;
+                return seq[0] === seq[3] &&
+                    seq[1] === seq[2] &&
+                    seq[0] !== seq[1]
+                    ? latestResult
+                    : null;
+            },
+        },
+        // Basic Rules (Lower Confidence)
+        {
+            name: "Simple 3-in-a-row",
+            confidence: 5,
+            func: (seq) => {
+                if (seq.length < 3) return null;
+                return seq.slice(0, 3).every((val) => val === latestResult)
+                    ? latestResult
+                    : null;
+            },
+        },
+        {
+            name: "Change in Trend",
+            confidence: 4,
+            func: (seq) => {
+                if (seq.length < 2) return null;
+                return seq[0] === seq[1] && latestResult !== seq[0]
+                    ? latestResult
+                    : null;
+            },
+        },
+        {
+            name: "Simple Pattern (1)",
+            confidence: 3,
+            func: (seq) => {
+                if (seq.length < 2) return null;
+                return seq[0] === latestResult ? latestResult : null;
+            },
+        },
+    ];
+
+    const winningStrategies = [];
+    for (const strategy of strategies) {
+        const predictedValue = strategy.func(previousData);
+        if (predictedValue) {
+            winningStrategies.push({
+                ...strategy,
+                prediction: predictedValue,
+            });
         }
     }
+
+    if (winningStrategies.length > 0) {
+        winningStrategies.sort((a, b) => b.confidence - a.confidence);
+        return winningStrategies[0];
+    }
+
     return null;
-};
-
-const getMajority = (arr) => {
-    let count = { R: 0, G: 0, S: 0, B: 0 };
-    arr.forEach((v) => count[v]++);
-    let maxCount = 0;
-    let majority = null;
-    for (const key in count) {
-        if (count[key] > maxCount) {
-            maxCount = count[key];
-            majority = key;
-        }
-    }
-    return majority;
-};
-
-const getAlternateNext = (seq) => {
-    const last = seq[0],
-        second = seq[1];
-    return last !== second ? last : null;
 };
 
 const WingoTrader = () => {
@@ -173,9 +273,12 @@ const WingoTrader = () => {
     }, []);
 
     const handlePrediction = () => {
-        if (apiNumbers.length < 4) {
-            setPrediction("Not enough data. Need at least 4 entries.");
+        if (apiNumbers.length < 10) {
+            setPrediction("Not enough data. Need at least 10 entries.");
             setPredictionColor("gray");
+            console.log(
+                "❌ Not enough data for prediction. Need at least 10 periods."
+            );
             return;
         }
 
@@ -183,86 +286,90 @@ const WingoTrader = () => {
         setPredictionColor("gray");
         clearTimeout(predictionTimerRef.current);
 
-        const top4Numbers = apiNumbers.slice(0, 4).map((item) => item.value);
-        const colorSeq = top4Numbers.map((num) => (num % 2 === 0 ? "R" : "G"));
-        const sizeSeq = top4Numbers.map((num) => (num <= 4 ? "S" : "B"));
+        let allPredictions = [];
 
-        const predictionStrategies = [
-            () => getNextPattern(colorSeq),
-            () => getNextPattern(sizeSeq),
-            () => getAlternateNext(colorSeq),
-            () => getAlternateNext(sizeSeq),
-            () => getMajority(colorSeq),
-            () => getMajority(sizeSeq),
-        ];
+        // Loop through historical data from latest to oldest, from 4 periods up to 10
+        for (let dataLength = 4; dataLength <= 10; dataLength++) {
+            const historicalNumbers = apiNumbers
+                .slice(0, dataLength)
+                .map((item) => item.value);
+            const colorSeq = historicalNumbers.map((num) =>
+                getCategory(num).colorText.charAt(0)
+            );
+            const sizeSeq = historicalNumbers.map((num) =>
+                getCategory(num).sizeText.charAt(0)
+            );
+
+            const colorResult = findWinningLogic(colorSeq);
+            if (colorResult) {
+                allPredictions.push({ ...colorResult, type: "Color" });
+            }
+
+            const sizeResult = findWinningLogic(sizeSeq);
+            if (sizeResult) {
+                allPredictions.push({ ...sizeResult, type: "Size" });
+            }
+        }
+
+        // Sort all found predictions by confidence, from highest to lowest
+        allPredictions.sort((a, b) => b.confidence - a.confidence);
 
         let finalPredictionText = "No clear prediction.";
         let finalPredictionColorClass = "gray";
-        let newPredictionValue = null;
+        let whyMessage = "";
 
-        for (const strategy of predictionStrategies) {
-            const result = strategy();
-            if (result) {
-                newPredictionValue = result;
-                break;
+        if (allPredictions.length > 0) {
+            const topPrediction = allPredictions[0];
+            let predictionValue = topPrediction.prediction;
+
+            if (topPrediction.type === "Color") {
+                finalPredictionText = `Color: ${
+                    predictionValue === "R" ? "Red" : "Green"
+                }`;
+                finalPredictionColorClass =
+                    predictionValue === "R" ? "red" : "green";
+            } else if (topPrediction.type === "Size") {
+                finalPredictionText = `Size: ${
+                    predictionValue === "S" ? "Small" : "Big"
+                }`;
+                finalPredictionColorClass = "blue";
             }
-        }
 
-        // Avoid repeating the same prediction more than twice
-        if (lastPredictions.length >= 2) {
+            whyMessage = `Based on the '${topPrediction.name}' logic, which has a confidence score of ${topPrediction.confidence}. This was the highest-ranking pattern found in the recent data.`;
+
+            // Block repeated predictions for reliability
+            const lastPrediction = lastPredictions[0];
+            const secondLastPrediction = lastPredictions[1];
             if (
-                newPredictionValue === lastPredictions[0] &&
-                newPredictionValue === lastPredictions[1]
+                lastPredictions.length >= 2 &&
+                finalPredictionText === lastPrediction &&
+                finalPredictionText === secondLastPrediction
             ) {
-                const alternativeStrategies = [
-                    () => {
-                        const allColors = apiNumbers.map((item) =>
-                            getCategory(item.value).colorText.charAt(0)
-                        );
-                        return getMajority(allColors);
-                    },
-                    () => {
-                        const allSizes = apiNumbers.map((item) =>
-                            getCategory(item.value).sizeText.charAt(0)
-                        );
-                        return getMajority(allSizes);
-                    },
-                ];
-
-                for (const altStrategy of alternativeStrategies) {
-                    const altResult = altStrategy();
-                    if (altResult && altResult !== newPredictionValue) {
-                        newPredictionValue = altResult;
-                        break;
-                    }
-                }
+                finalPredictionText = "No clear prediction.";
+                finalPredictionColorClass = "gray";
+                whyMessage =
+                    "Prediction blocked: The same prediction has occurred too many times in a row, which may indicate a break in the pattern.";
             }
-        }
 
-        if (newPredictionValue) {
-            if (newPredictionValue === "R") {
-                finalPredictionText = "Color: Green";
-                finalPredictionColorClass = "green";
-            } else if (newPredictionValue === "G") {
-                finalPredictionText = "Color: Red";
-                finalPredictionColorClass = "red";
-            } else if (newPredictionValue === "S") {
-                finalPredictionText = "Size: Big";
-                finalPredictionColorClass = "blue";
-            } else if (newPredictionValue === "B") {
-                finalPredictionText = "Size: Small";
-                finalPredictionColorClass = "blue";
+            if (finalPredictionText !== "No clear prediction.") {
+                setLastPredictions((prevHistory) => [
+                    finalPredictionText,
+                    ...prevHistory.slice(0, 1),
+                ]);
+            } else {
+                setLastPredictions([]);
             }
-            setLastPredictions((prev) => [
-                newPredictionValue,
-                ...prev.slice(0, 1),
-            ]);
         } else {
+            whyMessage =
+                "No strong patterns or trends were detected in the recent data.";
             setLastPredictions([]);
         }
 
         setPrediction(finalPredictionText);
         setPredictionColor(finalPredictionColorClass);
+
+        console.log(`\n--- FINAL PREDICTION: ${finalPredictionText} ---`);
+        console.log(`REASON: ${whyMessage}`);
 
         predictionTimerRef.current = setTimeout(() => {
             setPrediction(null);
@@ -360,6 +467,7 @@ const WingoTrader = () => {
                                     sizeText,
                                     numberStyle,
                                     colorStyle,
+                                    sizeStyle,
                                 } = getCategory(entry.value);
                                 return (
                                     <tr key={entry.periodNumber}>
@@ -375,7 +483,7 @@ const WingoTrader = () => {
                                                 {colorText}
                                             </span>
                                         </td>
-                                        <td>{sizeText}</td>
+                                        <td style={sizeStyle}>{sizeText}</td>
                                     </tr>
                                 );
                             })
