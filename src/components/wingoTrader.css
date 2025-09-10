@@ -67,7 +67,75 @@ h2 {
     background-color: rgba(0, 255, 153, 0.1);
     box-shadow: 0 0 15px #00ff99, 0 0 30px rgba(0, 255, 153, 0.5);
 }
+/* Update your existing CSS file with these styles */
 
+.confidence-display {
+    text-align: center;
+    margin: 20px 0;
+    padding: 10px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.confidence-display h3 {
+    margin: 0;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    text-shadow: 0 0 5px #00ff00;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Updated Confidence Circle Container */
+.confidence-circle-container {
+    position: relative;
+    width: 36px;
+    height: 36px;
+}
+
+.confidence-circle-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    transform: rotate(-90deg);
+}
+
+.confidence-circle-bg {
+    fill: none;
+    stroke: #333;
+    stroke-width: 2px; /* Thinner line */
+}
+
+.confidence-circle-fill {
+    fill: none;
+    stroke: #00ff00;
+    stroke-width: 2px; /* Thinner line */
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.1s ease-in-out;
+    filter: drop-shadow(0 0 5px #00ff00);
+}
+
+.confidence-text-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+}
+
+.confidence-text {
+    color: #00ff00;
+    font-size: 0.9em;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    text-shadow: 0 0 5px #00ff00;
+}
 /* ========== Prediction Box and Button ========== */
 .prediction-result {
     padding: 15px;

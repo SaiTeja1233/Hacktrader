@@ -6,7 +6,6 @@ import "./wingoTrader.css";
 const getCategory = (num) => {
     let colorText, numColorClass, numberStyle, colorStyle;
 
-    // Check for 0 and 5 first, as they have special styling
     if (num === 0) {
         colorText = "Red";
         numColorClass = "linear-gradient-text";
@@ -48,7 +47,6 @@ const getCategory = (num) => {
     const sizeText = num <= 4 ? "SMALL" : "BIG";
     const sizeStyle = num <= 4 ? { color: "orange" } : { color: "#ADD8E6" };
 
-    // Return a single object with all the styling information
     return {
         colorText,
         numColorClass,
@@ -59,132 +57,138 @@ const getCategory = (num) => {
     };
 };
 
-// --- Prediction Logic with Confidence Scores ---
+// --- PREDICTION LOGIC (No changes needed here) ---
 const findWinningLogic = (historicalSeq) => {
     if (historicalSeq.length < 4) return null;
-
-    const latestResult = historicalSeq[0];
-    const previousData = historicalSeq.slice(1);
-
     const strategies = [
-        // Pattern Recognition (High Confidence)
         {
-            name: "Pattern (3)",
+            name: "Consecutive (4 in a row)",
             confidence: 10,
             func: (seq) => {
-                if (seq.length < 6) return null;
-                const pattern = seq.slice(0, 3).join("");
-                return seq.slice(3, 6).join("") === pattern
-                    ? latestResult
+                const latestFour = seq.slice(0, 4);
+                return latestFour.every((val) => val === latestFour[0])
+                    ? latestFour[0]
                     : null;
             },
         },
         {
-            name: "Consecutive",
+            name: "Alternating (A,B,A,B) -> A",
             confidence: 9,
             func: (seq) => {
-                if (seq.length < 3) return null;
-                return seq.slice(0, 3).every((val) => val === latestResult)
-                    ? latestResult
+                const latestFour = seq.slice(0, 4);
+                return latestFour[0] !== latestFour[1] &&
+                    latestFour[0] === latestFour[2] &&
+                    latestFour[1] === latestFour[3]
+                    ? latestFour[0]
                     : null;
             },
         },
         {
-            name: "Alternating (A,B,A,B)",
+            name: "Alternating (A,B,A) -> B",
             confidence: 8,
             func: (seq) => {
-                if (seq.length < 4) return null;
-                return seq[0] === seq[2] &&
-                    seq[1] === seq[3] &&
-                    seq[0] !== seq[1]
-                    ? latestResult
+                const latestThree = seq.slice(0, 3);
+                return latestThree[0] !== latestThree[1] &&
+                    latestThree[0] === latestThree[2]
+                    ? latestThree[1]
                     : null;
             },
         },
-        // Trend Analysis (Medium Confidence)
         {
-            name: "Pattern (2)",
+            name: "Block Reversal (A,A,B,B) -> A",
             confidence: 7,
             func: (seq) => {
-                if (seq.length < 4) return null;
-                const pattern = seq.slice(0, 2).join("");
-                return seq.slice(2, 4).join("") === pattern
-                    ? latestResult
+                const latestFour = seq.slice(0, 4);
+                return latestFour[0] === latestFour[1] &&
+                    latestFour[2] === latestFour[3] &&
+                    latestFour[0] !== latestFour[2]
+                    ? latestFour[0]
                     : null;
             },
         },
         {
-            name: "Alternating (A,B,A)",
-            confidence: 6,
-            func: (seq) => {
-                if (seq.length < 3) return null;
-                return seq[0] === seq[2] && seq[0] !== seq[1]
-                    ? latestResult
-                    : null;
-            },
-        },
-        {
-            name: "Reverse Alternating (A,B,B,A)",
-            confidence: 5.5,
-            func: (seq) => {
-                if (seq.length < 4) return null;
-                return seq[0] === seq[3] &&
-                    seq[1] === seq[2] &&
-                    seq[0] !== seq[1]
-                    ? latestResult
-                    : null;
-            },
-        },
-        // Basic Rules (Lower Confidence)
-        {
-            name: "Simple 3-in-a-row",
+            name: "Consecutive (2 in a row)",
             confidence: 5,
             func: (seq) => {
-                if (seq.length < 3) return null;
-                return seq.slice(0, 3).every((val) => val === latestResult)
-                    ? latestResult
-                    : null;
+                const latestTwo = seq.slice(0, 2);
+                return latestTwo[0] === latestTwo[1] ? latestTwo[0] : null;
             },
         },
         {
-            name: "Change in Trend",
+            name: "Simple Alternating (A,B) -> A",
             confidence: 4,
             func: (seq) => {
-                if (seq.length < 2) return null;
-                return seq[0] === seq[1] && latestResult !== seq[0]
-                    ? latestResult
-                    : null;
+                const latestTwo = seq.slice(0, 2);
+                return latestTwo[0] !== latestTwo[1] ? latestTwo[0] : null;
             },
         },
         {
-            name: "Simple Pattern (1)",
+            name: "Majority Rule (last 5)",
             confidence: 3,
             func: (seq) => {
-                if (seq.length < 2) return null;
-                return seq[0] === latestResult ? latestResult : null;
+                const latestFive = seq.slice(0, 5);
+                const counts = latestFive.reduce((acc, val) => {
+                    acc[val] = (acc[val] || 0) + 1;
+                    return acc;
+                }, {});
+                let maxCount = 0;
+                let prediction = null;
+                for (const key in counts) {
+                    if (counts[key] > maxCount) {
+                        maxCount = counts[key];
+                        prediction = key;
+                    }
+                }
+                return prediction;
             },
         },
     ];
 
-    const winningStrategies = [];
     for (const strategy of strategies) {
-        const predictedValue = strategy.func(previousData);
-        if (predictedValue) {
-            winningStrategies.push({
+        const prediction = strategy.func(historicalSeq);
+        if (prediction) {
+            return {
                 ...strategy,
-                prediction: predictedValue,
-            });
+                prediction,
+            };
         }
     }
-
-    if (winningStrategies.length > 0) {
-        winningStrategies.sort((a, b) => b.confidence - a.confidence);
-        return winningStrategies[0];
-    }
-
     return null;
 };
 
+// --- CORRECTED CONFIDENCE LOADING BAR COMPONENT ---
+const ConfidenceLoadingBar = ({ confidenceLevel }) => {
+    // Radius should be smaller to accommodate thinner line
+    const radius = 16;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (confidenceLevel / 10) * circumference;
+
+    return (
+        <div className="confidence-circle-container">
+            <svg className="confidence-circle-svg" width="36" height="36">
+                <circle
+                    className="confidence-circle-bg"
+                    cx="18"
+                    cy="18"
+                    r={radius}
+                />
+                <circle
+                    className="confidence-circle-fill"
+                    cx="18"
+                    cy="18"
+                    r={radius}
+                    strokeDasharray={circumference}
+                    strokeDashoffset={offset}
+                />
+            </svg>
+            <div className="confidence-text-center">
+                <span className="confidence-text">{confidenceLevel}</span>
+            </div>
+        </div>
+    );
+};
+
+// --- MAIN WINGO TRADER COMPONENT ---
 const WingoTrader = () => {
     const [apiNumbers, setApiNumbers] = useState([]);
     const [tableLoading, setTableLoading] = useState(true);
@@ -195,6 +199,7 @@ const WingoTrader = () => {
     const [nextPeriod, setNextPeriod] = useState(null);
     const [copyStatus, setCopyStatus] = useState("Copy");
     const [lastPredictions, setLastPredictions] = useState([]);
+    const [confidence, setConfidence] = useState(null);
     const timerRef = useRef(null);
     const predictionTimerRef = useRef(null);
 
@@ -260,6 +265,7 @@ const WingoTrader = () => {
                     setPrediction(null);
                     setPredictionColor("");
                     setCopyStatus("Copy");
+                    setConfidence(null);
                     fetchData();
                     return 60;
                 }
@@ -276,9 +282,6 @@ const WingoTrader = () => {
         if (apiNumbers.length < 10) {
             setPrediction("Not enough data. Need at least 10 entries.");
             setPredictionColor("gray");
-            console.log(
-                "❌ Not enough data for prediction. Need at least 10 periods."
-            );
             return;
         }
 
@@ -286,95 +289,81 @@ const WingoTrader = () => {
         setPredictionColor("gray");
         clearTimeout(predictionTimerRef.current);
 
-        let allPredictions = [];
+        const historicalNumbers = apiNumbers
+            .slice(0, 10)
+            .map((item) => item.value);
 
-        // Loop through historical data from latest to oldest, from 4 periods up to 10
-        for (let dataLength = 4; dataLength <= 10; dataLength++) {
-            const historicalNumbers = apiNumbers
-                .slice(0, dataLength)
-                .map((item) => item.value);
-            const colorSeq = historicalNumbers.map((num) =>
-                getCategory(num).colorText.charAt(0)
-            );
-            const sizeSeq = historicalNumbers.map((num) =>
-                getCategory(num).sizeText.charAt(0)
-            );
+        const colorSeq = historicalNumbers.map((num) =>
+            getCategory(num).colorText.charAt(0)
+        );
+        const sizeSeq = historicalNumbers.map((num) =>
+            getCategory(num).sizeText.charAt(0)
+        );
 
-            const colorResult = findWinningLogic(colorSeq);
-            if (colorResult) {
-                allPredictions.push({ ...colorResult, type: "Color" });
-            }
+        const colorResult = findWinningLogic(colorSeq);
+        const sizeResult = findWinningLogic(sizeSeq);
 
-            const sizeResult = findWinningLogic(sizeSeq);
-            if (sizeResult) {
-                allPredictions.push({ ...sizeResult, type: "Size" });
-            }
+        let finalPrediction = null;
+
+        if (
+            colorResult &&
+            (!sizeResult || colorResult.confidence >= sizeResult.confidence)
+        ) {
+            finalPrediction = { ...colorResult, type: "Color" };
+        } else if (sizeResult) {
+            finalPrediction = { ...sizeResult, type: "Size" };
         }
-
-        // Sort all found predictions by confidence, from highest to lowest
-        allPredictions.sort((a, b) => b.confidence - a.confidence);
 
         let finalPredictionText = "No clear prediction.";
         let finalPredictionColorClass = "gray";
-        let whyMessage = "";
 
-        if (allPredictions.length > 0) {
-            const topPrediction = allPredictions[0];
-            let predictionValue = topPrediction.prediction;
-
-            if (topPrediction.type === "Color") {
+        if (finalPrediction) {
+            setConfidence(finalPrediction.confidence);
+            if (finalPrediction.type === "Color") {
                 finalPredictionText = `Color: ${
-                    predictionValue === "R" ? "Red" : "Green"
+                    finalPrediction.prediction === "R" ? "Red" : "Green"
                 }`;
                 finalPredictionColorClass =
-                    predictionValue === "R" ? "red" : "green";
-            } else if (topPrediction.type === "Size") {
+                    finalPrediction.prediction === "R" ? "red" : "green";
+            } else {
                 finalPredictionText = `Size: ${
-                    predictionValue === "S" ? "Small" : "Big"
+                    finalPrediction.prediction === "S" ? "Small" : "Big"
                 }`;
                 finalPredictionColorClass = "blue";
             }
-
-            whyMessage = `Based on the '${topPrediction.name}' logic, which has a confidence score of ${topPrediction.confidence}. This was the highest-ranking pattern found in the recent data.`;
-
-            // Block repeated predictions for reliability
-            const lastPrediction = lastPredictions[0];
-            const secondLastPrediction = lastPredictions[1];
-            if (
-                lastPredictions.length >= 2 &&
-                finalPredictionText === lastPrediction &&
-                finalPredictionText === secondLastPrediction
-            ) {
-                finalPredictionText = "No clear prediction.";
-                finalPredictionColorClass = "gray";
-                whyMessage =
-                    "Prediction blocked: The same prediction has occurred too many times in a row, which may indicate a break in the pattern.";
-            }
-
-            if (finalPredictionText !== "No clear prediction.") {
-                setLastPredictions((prevHistory) => [
-                    finalPredictionText,
-                    ...prevHistory.slice(0, 1),
-                ]);
-            } else {
-                setLastPredictions([]);
-            }
         } else {
-            whyMessage =
-                "No strong patterns or trends were detected in the recent data.";
+            setConfidence(null);
+        }
+
+        const lastPrediction = lastPredictions[0];
+        const secondLastPrediction = lastPredictions[1];
+        if (
+            lastPredictions.length >= 2 &&
+            finalPredictionText === lastPrediction &&
+            finalPredictionText === secondLastPrediction
+        ) {
+            finalPredictionText = "No clear prediction.";
+            finalPredictionColorClass = "gray";
+            setConfidence(null);
+        }
+
+        if (finalPredictionText !== "No clear prediction.") {
+            setLastPredictions((prevHistory) => [
+                finalPredictionText,
+                ...prevHistory.slice(0, 1),
+            ]);
+        } else {
             setLastPredictions([]);
         }
 
         setPrediction(finalPredictionText);
         setPredictionColor(finalPredictionColorClass);
 
-        console.log(`\n--- FINAL PREDICTION: ${finalPredictionText} ---`);
-        console.log(`REASON: ${whyMessage}`);
-
         predictionTimerRef.current = setTimeout(() => {
             setPrediction(null);
             setPredictionColor("");
             setCopyStatus("Copy");
+            setConfidence(null);
         }, 10000);
     };
 
@@ -432,6 +421,15 @@ const WingoTrader = () => {
                     <button className="copy-button" onClick={handleCopyClick}>
                         {copyStatus}
                     </button>
+                </div>
+            )}
+
+            {confidence !== null && (
+                <div className="confidence-display">
+                    <h3>
+                        Confidence Level:
+                        <ConfidenceLoadingBar confidenceLevel={confidence} />
+                    </h3>
                 </div>
             )}
 
@@ -497,6 +495,7 @@ const WingoTrader = () => {
                     </tbody>
                 </table>
             </div>
+
             <button className="prediction-button" onClick={handlePrediction}>
                 Prediction
             </button>
