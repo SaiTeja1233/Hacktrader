@@ -7,10 +7,33 @@ const OriginalGames = () => {
     const [selectedBoxes, setSelectedBoxes] = useState([]);
     const [prediction, setPrediction] = useState(null);
     const [resultMessage, setResultMessage] = useState(
-        "Add 2 trades to get a prediction."
+        "Add 1 trade to get a prediction."
     );
     const [showCongratsPopup, setShowCongratsPopup] = useState(false);
     const [consecutiveWins, setConsecutiveWins] = useState(0);
+
+    // Helper function to generate a purely random integer from 1 to 5
+    const getRandomInt = () => {
+        return Math.floor(Math.random() * 5) + 1;
+    };
+
+    // Logic for a "Super Pure Random" prediction after a loss
+    const getSuperPureRandomPrediction = (lastLostBox) => {
+        let newPrediction;
+        do {
+            newPrediction = getRandomInt();
+        } while (newPrediction === lastLostBox); // Ensure it doesn't repeat the box that caused the loss
+        return newPrediction;
+    };
+
+    // The main prediction function
+    const predictNextBomb = () => {
+        const randomPrediction = getRandomInt();
+        setPrediction(randomPrediction);
+        setResultMessage(
+            `Pure Random Prediction: The next bomb could be in Box ${randomPrediction}.`
+        );
+    };
 
     const checkCongratsPopup = (wins) => {
         if (wins >= 10) {
@@ -22,31 +45,29 @@ const OriginalGames = () => {
 
     const handleCheckboxChange = (event) => {
         const boxNumber = parseInt(event.target.value);
-
-        let newConsecutiveWins = consecutiveWins;
-        if (prediction !== null) {
-            if (boxNumber !== prediction) {
-                newConsecutiveWins += 1;
-            } else {
-                newConsecutiveWins = 0;
-            }
-        }
-        setConsecutiveWins(newConsecutiveWins);
-        checkCongratsPopup(newConsecutiveWins);
-
-        const newHistory = [boxNumber, ...bombHistory].slice(0, 10);
-        setBombHistory(newHistory);
         setSelectedBoxes([boxNumber]);
 
-        setResultMessage(`You selected Box ${boxNumber}.`);
-
-        if (newHistory.length >= 2) {
-            predictNextBomb(newHistory);
-        } else {
-            setPrediction(null);
+        // Check for a loss first
+        if (prediction !== null && boxNumber === prediction) {
             setResultMessage(
-                `Add ${2 - newHistory.length} more trades to get a prediction.`
+                "LOSS! Switching to a Super Pure Random prediction."
             );
+            const newPrediction = getSuperPureRandomPrediction(boxNumber);
+            setPrediction(newPrediction);
+            setConsecutiveWins(0);
+            setShowCongratsPopup(false);
+        } else {
+            // You won or it's the first trade
+            const newConsecutiveWins =
+                prediction !== null ? consecutiveWins + 1 : 0;
+            setConsecutiveWins(newConsecutiveWins);
+            checkCongratsPopup(newConsecutiveWins);
+            setResultMessage(`You selected Box ${boxNumber}.`);
+
+            // Update history and generate next random prediction
+            const newHistory = [boxNumber, ...bombHistory].slice(0, 10);
+            setBombHistory(newHistory);
+            predictNextBomb();
         }
     };
 
@@ -59,14 +80,10 @@ const OriginalGames = () => {
             setConsecutiveWins(0);
             setShowCongratsPopup(false);
             setResultMessage("Last entry has been undone.");
-            if (newHistory.length >= 2) {
-                predictNextBomb(newHistory);
+            if (newHistory.length > 0) {
+                predictNextBomb();
             } else {
-                setResultMessage(
-                    `Add ${
-                        2 - newHistory.length
-                    } more trades to get a prediction.`
-                );
+                setResultMessage("Add 1 trade to get a prediction.");
             }
         } else {
             setResultMessage("No history to undo.");
@@ -80,101 +97,6 @@ const OriginalGames = () => {
         setResultMessage("All data has been reset.");
         setShowCongratsPopup(false);
         setConsecutiveWins(0);
-    };
-
-    const getSafestBox = (history) => {
-        const counts = {};
-        for (let i = 1; i <= 5; i++) {
-            counts[i] = 0;
-        }
-        history.forEach((bombLocation) => {
-            counts[bombLocation] = (counts[bombLocation] || 0) + 1;
-        });
-
-        let minCount = Infinity;
-        let safestBoxes = [];
-
-        for (const box in counts) {
-            const count = counts[box];
-            if (count < minCount) {
-                minCount = count;
-                safestBoxes = [parseInt(box)];
-            } else if (count === minCount) {
-                safestBoxes.push(parseInt(box));
-            }
-        }
-
-        // Deterministic Tie-Breaker: choose the one that appeared earliest in the history.
-        if (safestBoxes.length > 1) {
-            const oldestSafestBox = history.find((item) =>
-                safestBoxes.includes(item)
-            );
-            return [oldestSafestBox];
-        }
-
-        return safestBoxes;
-    };
-
-    const predictNextBomb = (currentHistory) => {
-        // 1. Check for Alternating Pattern (highest priority)
-        if (currentHistory.length >= 4) {
-            const history4 = currentHistory.slice(0, 4);
-            if (
-                history4[0] === history4[2] &&
-                history4[1] === history4[3] &&
-                history4[0] !== history4[1]
-            ) {
-                const alternatingPrediction = history4[0];
-                setPrediction(alternatingPrediction);
-                setResultMessage(
-                    `Super Prediction: The alternating pattern suggests Box ${alternatingPrediction}.`
-                );
-                return;
-            }
-        }
-
-        // 2. Check for Skip Pattern
-        if (currentHistory.length >= 3) {
-            const history3 = currentHistory.slice(0, 3);
-            const diff1 = history3[0] - history3[1];
-            const diff2 = history3[1] - history3[2];
-            if (diff1 === diff2 && Math.abs(diff1) > 0) {
-                const skipPrediction = history3[0] + diff1;
-                if (skipPrediction >= 1 && skipPrediction <= 5) {
-                    setPrediction(skipPrediction);
-                    setResultMessage(
-                        `Super Prediction: The skip pattern suggests Box ${skipPrediction}.`
-                    );
-                    return;
-                }
-            }
-        }
-
-        // 3. Fallback to Frequency Bias (safest bet)
-        if (currentHistory.length >= 2) {
-            const safestBoxes = getSafestBox(currentHistory);
-            if (safestBoxes.length === 1) {
-                setPrediction(safestBoxes[0]);
-                setResultMessage(
-                    `Super Prediction: The safest box is likely Box ${safestBoxes[0]}.`
-                );
-                return;
-            } else if (safestBoxes.length > 0) {
-                // In this case, getSafestBox should always return a single value due to the tie-breaker logic.
-                const finalPrediction = safestBoxes[0];
-                setPrediction(finalPrediction);
-                setResultMessage(
-                    `Super Prediction: The safest boxes are ${safestBoxes.join(
-                        ", "
-                    )}. We've deterministically chosen Box ${finalPrediction}.`
-                );
-                return;
-            }
-        }
-
-        // Default case if no pattern is found
-        setPrediction(null);
-        setResultMessage("No clear pattern found. Add more trades.");
     };
 
     return (
